@@ -104,6 +104,12 @@ def appeal_late_response_approved(instance, **kwargs):
             warning.delete()
         else:
             revoke_card(instance.round, instance.requester, 'card_unresponsive')
+        if instance.season.league.competitor_type == 'team':
+            avail, _ = PlayerAvailability.objects.get_or_create(round=round_, player=player)
+            avail.isavailable = True
+            avail.save()
+            #TODO add signal to notify that the appeal was approved
+            #signals.notify_responsive(sender=appeal_late_response_approve, player = instance.requester)
 
 @receiver(signals.automod_noshow, dispatch_uid='heltour.tournament.automod')
 def automod_noshow(pairing, **kwargs):
