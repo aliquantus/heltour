@@ -645,8 +645,13 @@ def notify_unresponsive(round_, player, punishment, allow_continue, pairing, **k
     if allow_continue:
         continue_url = abs_url(reverse('by_league:by_season:modrequest', args=[league.tag, season.tag, 'request_continuation']))
         message += '\nIf you haven\'t but want to continue playing next round, <%s|click here>.' % continue_url
+    if league.competitor_type == 'team':
+        availability_url = abs_url(reverse('by_league:by_season:edit_availability', args=[league.tag, league.season]))
+        message += '\nFor this round you\'ve been marked unavailable and an alternate search is in progress. '  \
+                + 'If you\'re still able to play this week, <%s|click here> to mark yourself available for this week. ' % availability_url \
+                + 'This will cancel the alternate search and you may proceed with scheduling. ' \
+                + 'Note that this will not remove the warning or card you have recieved.'
     _message_user(league, _slack_user(player), message)
-
     if league.competitor_type == 'team':
         tpp = pairing.teamplayerpairing
         if tpp.white == player:
@@ -665,7 +670,12 @@ def notify_opponent_unresponsive(round_, player, opponent, pairing, **kwargs):
         message = 'Notice: Your %s opponent hasn\'t messaged you in the provided chat. ' % league.name \
                 + 'If they haven\'t contacted you, you\'re entitled to a win by forfeit. ' \
                 + 'Contact a mod to request a new pairing.'
-        _message_user(league, _slack_user(player), message)
+    elif league.competitor_type == 'team':
+        message = 'Notice: Your %s opponent hasn\'t messaged you in the provided chat. ' % league.name \
+                + 'Your opponent has been marked unavailable and an alternate search is in progress.'
+                + 'You\'ll be contacted if an alternate is found or if your opponent is marked available again. '
+                + 'If neither happens, you\'re entitled to a win by forfeit. ' \
+    _message_user(league, _slack_user(player), message)
 
 @receiver(signals.notify_noshow, dispatch_uid='heltour.tournament.notify')
 def notify_noshow(round_, player, opponent, **kwargs):
