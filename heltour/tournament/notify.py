@@ -648,7 +648,8 @@ def notify_unresponsive(round_, player, punishment, allow_continue, pairing, **k
     if league.competitor_type == 'team':
         availability_url = abs_url(reverse('by_league:by_season:edit_availability', args=[league.tag, league.season]))
         message += '\nFor this round you\'ve been marked unavailable and an alternate search is in progress. '  \
-                + 'If you\'re still able to play this week, <%s|click here> to mark yourself available for this week. ' % availability_url \
+                + 'If an alternate has not yet been found and you\'re still able to play this week, ' \
+                + '<%s|click here> to mark yourself available again. ' % availability_url \
                 + 'This will cancel the alternate search and you may proceed with scheduling. ' \
                 + 'Note that this will not remove the warning or card you have recieved.'
     _message_user(league, _slack_user(player), message)
