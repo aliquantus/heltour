@@ -136,6 +136,13 @@ def update_pairing(request):
     if datetime is not None:
         pairing.scheduled_time = datetime
 
+    #set both players available: cancels any alt searches active for that pairing
+    for player in [white,black]:
+        avail, _ = PlayerAvailability.objects.get_or_create(round=pairing.get_round(), player=player)
+        if not avail.is_available:
+            avail.is_available = True
+            avail.save()
+
     with reversion.create_revision():
         reversion.set_comment('API: update_pairing')
         pairing.save()
