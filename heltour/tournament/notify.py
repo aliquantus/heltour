@@ -645,6 +645,12 @@ def notify_unresponsive(round_, player, punishment, allow_continue, pairing, **k
     if allow_continue:
         continue_url = abs_url(reverse('by_league:by_season:modrequest', args=[league.tag, season.tag, 'request_continuation']))
         message += '\nIf you haven\'t but want to continue playing next round, <%s|click here>.' % continue_url
+    if league.competitor_type == 'team':
+        availabity_url = abs_url(reverse('by_league:by_season:edit_availability'),args=[league.tag, season.tag])
+        message += '\nAn alternate search is in progress. ' \
+                 + 'If you\'re still able to play this round, <%s|click here> and mark yourself available. ' % availabity_url \
+                 + 'This will cancel the alternate search. Please commence scheduling with your opponent as soon as possible. ' \
+                 + 'Note that this will not remove any warning or card you\'ve recieved.'
     _message_user(league, _slack_user(player), message)
 
     if league.competitor_type == 'team':
