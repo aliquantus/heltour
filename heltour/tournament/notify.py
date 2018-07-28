@@ -648,10 +648,10 @@ def notify_unresponsive(round_, player, punishment, allow_continue, pairing, **k
     if league.competitor_type == 'team':
         availability_url = abs_url(reverse('by_league:by_season:edit_availability', args=[league.tag, league.season]))
         message += '\nFor this round you\'ve been marked unavailable and an alternate search is in progress. '  \
-                + 'If an alternate has not yet been found and you\'re still able to play this week, ' \
+                + 'If an alternate hasn\'t yet been found and you\'re still able to play this week, ' \
                 + '<%s|click here> to mark yourself available again. ' % availability_url \
                 + 'This will cancel the alternate search and you may proceed with scheduling. ' \
-                + 'Note that this will not remove the warning or card you have recieved.'
+                + 'Note that this doesn\'t remove the warning or card you have recieved.'
     _message_user(league, _slack_user(player), message)
     if league.competitor_type == 'team':
         tpp = pairing.teamplayerpairing
@@ -673,8 +673,8 @@ def notify_opponent_unresponsive(round_, player, opponent, pairing, **kwargs):
                 + 'Contact a mod to request a new pairing.'
     elif league.competitor_type == 'team':
         message = 'Notice: Your %s opponent hasn\'t messaged you in the provided chat. ' % league.name \
-                + 'Your opponent has been marked unavailable and an alternate search is in progress.'
-                + 'You\'ll be contacted if an alternate is found or if your opponent is marked available again. '
+                + 'Your opponent has been marked unavailable and an alternate search is in progress. ' \
+                + 'You\'ll be contacted if an alternate is found or if your opponent is marked available again. ' \
                 + 'If neither happens, you\'re entitled to a win by forfeit. ' \
     _message_user(league, _slack_user(player), message)
 
