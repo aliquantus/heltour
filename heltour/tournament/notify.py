@@ -322,22 +322,7 @@ def _notify_alternate_and_opponent(league, aa):
     _message_user(league, _slack_user(opponent), message_to_opponent)
 
     # Send configured notifications
-    im_msg = 'You have been paired for Round {round} in {season}.\n' \
-           + '<@{white}> (_white pieces_) vs <@{black}> (_black pieces_)\n' \
-           + 'Send a direct message to your opponent, <@{opponent}>, as soon as possible.\n' \
-           + 'When you have agreed on a time, post it in {scheduling_channel_link}.'
-
-    mp_msg = 'You have been paired for Round {round} in {season}.\n' \
-           + '<@{white}> (_white pieces_) vs <@{black}> (_black pieces_)\n' \
-           + 'Message your opponent here as soon as possible.\n' \
-           + 'When you have agreed on a time, post it in {scheduling_channel_link}.'
-
-    li_subject = 'Round {round} - {league}'
-    li_msg = 'You have been paired for Round {round} in {season}.\n' \
-           + '@{white} (white pieces) vs @{black} (black pieces)\n' \
-           + 'Message your opponent on Slack as soon as possible.\n' \
-           + '{slack_url}\n' \
-           + 'When you have agreed on a time, post it in {scheduling_channel}.'
+    im_msg, mp_msg, li_subject, li_msg = pairing_messages(league.competitor_type,**kwargs)
 
     send_pairing_notification('round_started', pairing, im_msg, mp_msg, li_subject, li_msg)
 
@@ -443,27 +428,38 @@ def send_pairing_notification(type_, pairing, im_msg, mp_msg, li_subject, li_msg
     if send_to_white and use_mpim:
         _message_multiple_users(league, [white, black], mp_msg.format(**common_params))
 
-@receiver(signals.notify_players_round_start, dispatch_uid='heltour.tournament.notify')
-def notify_players_round_start(round_, **kwargs):
+def pairing_messages(competitor_type,**kwargs):
     im_msg = 'You have been paired for Round {round} in {season}.\n' \
-           + '<@{white}> (_white pieces_, {white_tz}) vs <@{black}> (_black pieces_, {black_tz})\n' \
-           + 'Send a direct message to your opponent, <@{opponent}>, within {contact_period}.\n' \
-           + 'When you have agreed on a time, post it in {scheduling_channel_link}.'
+        + '<@{white}> (_white pieces_, {white_tz}) vs <@{black}> (_black pieces_, {black_tz})\n' \
+        + 'Send a direct message to your opponent, <@{opponent}>, within {contact_period}.\n' \
+        + 'When you have agreed on a time, post it in {scheduling_channel_link}.'
 
-    mp_msg = 'You have been paired for Round {round} in {season}.\n' \
-           + '<@{white}> (_white pieces_, {white_tz}) vs <@{black}> (_black pieces_, {black_tz})\n' \
-           + 'Message your opponent here within {contact_period}.\n' \
-           + 'When you have agreed on a time, post it in {scheduling_channel_link}.'
+    if competitor_type == 'team':
+        mp_msg = 'You have been paired for Round {round} in {season}.\n' \
+            + '<@{white}> (_white pieces_, {white_tz}) vs <@{black}> (_black pieces_, {black_tz})\n' \
+            + 'Offer your opponent three different times over two different days. ' \
+            + 'When you have agreed on a time, post it in {scheduling_channel_link}.\n' \
+            + 'If you do not make contact here within {contact_period}, you will be marked unavailable.\n' \
+    else:
+        mp_msg = 'You have been paired for Round {round} in {season}.\n' \
+            + '<@{white}> (_white pieces_, {white_tz}) vs <@{black}> (_black pieces_, {black_tz})\n' \
+            + 'Message your opponent here within {contact_period}.\n' \
+            + 'When you have agreed on a time, post it in {scheduling_channel_link}.'
 
     li_subject = 'Round {round} - {league}'
     li_msg = 'You have been paired for Round {round} in {season}.\n' \
-           + '@{white} (white pieces, {white_tz}) vs @{black} (black pieces, {black_tz})\n' \
-           + 'Message your opponent on Slack within {contact_period}.\n' \
-           + '{slack_url}\n' \
-           + 'When you have agreed on a time, post it in {scheduling_channel}.'
+        + '@{white} (white pieces, {white_tz}) vs @{black} (black pieces, {black_tz})\n' \
+        + 'Message your opponent on Slack within {contact_period}.\n' \
+        + '{slack_url}\n' \
+        + 'When you have agreed on a time, post it in {scheduling_channel}.'
 
+    return im_msg, mp_msg, li_subject, li_msg
+
+@receiver(signals.notify_players_round_start, dispatch_uid='heltour.tournament.notify')
+def notify_players_round_start(round_, **kwargs): 
     season = round_.season
     league = season.league
+
     if not league.enable_notifications:
         return
     if not round_.publish_pairings or round_.is_completed:
@@ -471,6 +467,8 @@ def notify_players_round_start(round_, **kwargs):
         return
     unavailable_players = {pa.player for pa in PlayerAvailability.objects.filter(round=round_, is_available=False) \
                                                       .select_related('player').nocache()}
+
+    im_msg, mp_msg, li_subject, li_msg = pairing_messages(league.competitor_type,**kwargs)
 
     with cache.lock('round_start'):
         for pairing in round_.pairings.select_related('white', 'black'):
@@ -482,23 +480,6 @@ def notify_players_round_start(round_, **kwargs):
 
 @receiver(signals.notify_players_late_pairing, dispatch_uid='heltour.tournament.notify')
 def notify_players_late_pairing(round_, pairing, **kwargs):
-    im_msg = 'You have been paired for Round {round} in {season}.\n' \
-           + '<@{white}> (_white pieces_, {white_tz}) vs <@{black}> (_black pieces_, {black_tz})\n' \
-           + 'Send a direct message to your opponent, <@{opponent}>, within {contact_period}.\n' \
-           + 'When you have agreed on a time, post it in {scheduling_channel_link}.'
-
-    mp_msg = 'You have been paired for Round {round} in {season}.\n' \
-           + '<@{white}> (_white pieces_, {white_tz}) vs <@{black}> (_black pieces_, {black_tz})\n' \
-           + 'Message your opponent here within {contact_period}.\n' \
-           + 'When you have agreed on a time, post it in {scheduling_channel_link}.'
-
-    li_subject = 'Round {round} - {league}'
-    li_msg = 'You have been paired for Round {round} in {season}.\n' \
-           + '@{white} (white pieces, {white_tz}) vs @{black} (black pieces, {black_tz})\n' \
-           + 'Message your opponent on Slack within {contact_period}.\n' \
-           + '{slack_url}\n' \
-           + 'When you have agreed on a time, post it in {scheduling_channel}.'
-
     season = round_.season
     league = season.league
     if not league.enable_notifications:
@@ -507,6 +488,7 @@ def notify_players_late_pairing(round_, pairing, **kwargs):
         logger.error('Could not send round start notifications due to incorrect round state: %s' % round_)
         return
 
+    im_msg, mp_msg, li_subject, li_msg = pairing_messages(league.competitor_type,**kwargs)
     send_pairing_notification('round_started', pairing, im_msg, mp_msg, li_subject, li_msg)
     time.sleep(1)
 
