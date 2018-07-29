@@ -437,9 +437,9 @@ def pairing_messages(competitor_type,**kwargs):
     if competitor_type == 'team':
         mp_msg = 'You have been paired for Round {round} in {season}.\n' \
             + '<@{white}> (_white pieces_, {white_tz}) vs <@{black}> (_black pieces_, {black_tz})\n' \
-            + 'Offer your opponent three different times over two different days. ' \
+            + 'Offer your opponent three different times over two different days.\n' \
             + 'When you have agreed on a time, post it in {scheduling_channel_link}.\n' \
-            + 'If you do not make contact here within {contact_period}, you will be marked unavailable.\n' \
+            + 'If you do not make contact here within {contact_period}, you will be marked unavailable.' \
     else:
         mp_msg = 'You have been paired for Round {round} in {season}.\n' \
             + '<@{white}> (_white pieces_, {white_tz}) vs <@{black}> (_black pieces_, {black_tz})\n' \
