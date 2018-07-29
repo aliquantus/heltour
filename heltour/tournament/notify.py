@@ -532,7 +532,7 @@ def unscheduled_messages(competitor_type,**kwargs):
            + '<@{white}> (_white pieces_) vs <@{black}> (_black pieces_)\n' \
            + 'When you have agreed on a time, post it in {scheduling_channel_link}.\n' \
            + 'If you both have made sufficient effort and cannot agree on a time, ' \
-           + '<%s|click here> to claim a scheduling draw.' %claim_url \n \
+           + '<%s|click here> to claim a scheduling draw.\n' %claim_url \
            + 'If you have any issues, please contact a mod.'
 
         mp_msg = 'Reminder: Your game is currently unscheduled.\n' \
@@ -546,7 +546,7 @@ def unscheduled_messages(competitor_type,**kwargs):
             + '@{white} (white pieces) vs @{black} (black pieces)\n' \
             + 'When you have agreed on a time, post it in {scheduling_channel}.\n' \
             + 'If you both have made sufficient effort and cannot agree on a time, ' \
-            + '<%s|click here> to claim a scheduling draw.' %claim_url \n \
+            + '<%s|click here> to claim a scheduling draw.\n' %claim_url \
             + 'If you have any issues, please contact a mod.'
 
 @receiver(signals.notify_players_unscheduled, dispatch_uid='heltour.tournament.notify')
