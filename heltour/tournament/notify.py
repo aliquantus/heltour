@@ -525,6 +525,30 @@ def before_game_time(player, pairing, offset, **kwargs):
     if pairing.game_link == '' and pairing.result == '':
         send_pairing_notification('before_game_time', pairing, im_msg, mp_msg, li_subject, li_msg, offset, player)
 
+def unscheduled_messages(competitor_type,**kwargs):
+        claim_url = abs_url(reverse('by_league:by_season:modrequest', args=[league.tag, season.tag, 'claim_draw_scheduling']))
+        
+        im_msg = 'Reminder: Your game is currently unscheduled.\n' \
+           + '<@{white}> (_white pieces_) vs <@{black}> (_black pieces_)\n' \
+           + 'When you have agreed on a time, post it in {scheduling_channel_link}.\n' \
+           + 'If you both have made sufficient effort and cannot agree on a time, ' \
+           + '<%s|click here> to claim a scheduling draw.' %claim_url \n \
+           + 'If you have any issues, please contact a mod.'
+
+        mp_msg = 'Reminder: Your game is currently unscheduled.\n' \
+            + 'When you have agreed on a time, post it in {scheduling_channel_link}.\n' \
+            + 'If you both have made sufficient effort and cannot agree on a time, ' \
+            + '<%s|click here> to claim a scheduling draw.\n' %claim_url \
+            + 'If you have any issues, please contact a mod.'
+
+        li_subject = 'Round {round} - {league}'
+        li_msg = 'Reminder: Your game is currently unscheduled.\n' \
+            + '@{white} (white pieces) vs @{black} (black pieces)\n' \
+            + 'When you have agreed on a time, post it in {scheduling_channel}.\n' \
+            + 'If you both have made sufficient effort and cannot agree on a time, ' \
+            + '<%s|click here> to claim a scheduling draw.' %claim_url \n \
+            + 'If you have any issues, please contact a mod.'
+
 @receiver(signals.notify_players_unscheduled, dispatch_uid='heltour.tournament.notify')
 def notify_players_unscheduled(round_, **kwargs):
     im_msg = 'Reminder: Your game is currently unscheduled.\n' \
@@ -535,7 +559,7 @@ def notify_players_unscheduled(round_, **kwargs):
     mp_msg = 'Reminder: Your game is currently unscheduled.\n' \
            + 'When you have agreed on a time, post it in {scheduling_channel_link}.\n' \
            + 'If you have any issues, please contact a mod.'
-
+           
     li_subject = 'Round {round} - {league}'
     li_msg = 'Reminder: Your game is currently unscheduled.\n' \
            + '@{white} (white pieces) vs @{black} (black pieces)\n' \
